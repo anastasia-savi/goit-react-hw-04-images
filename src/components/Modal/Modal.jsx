@@ -12,12 +12,13 @@ export default function Modal ({onClose, data}){
       onClose();
     }
   }
-  window.addEventListener('keydown', handleKeyDown);
-useEffect(()=>{
-  return ()=>{
-    window.removeEventListener('keydown',handleKeyDown)
-  }
-}, [])
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
 
  const  handlwBackdropClick = event => {
 if(event.currentTarget === event.target){
