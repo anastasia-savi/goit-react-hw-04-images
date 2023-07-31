@@ -3,30 +3,34 @@ import css from './ImageGallery.module.css'
 import ImageGalleryItem from '../ImageGalleryItem/ImageGalleryItem.jsx';
 import PropTypes from 'prop-types'
 
-export default class ImageGallery extends React.Component {
+export default function ImageGallery ({images, onClickModal}){
 
-
-render() {
-const {images, onClickModal} = this.props
   return (
-<div>
+<>
 <ul className={css.imageGallery}>
-          {images.map((image) => (
+          {images.map(({id, webformatURL, largeImageURL, tags}) => (
             <ImageGalleryItem
-              key={image.id}
-              webformatURL={image.webformatURL}
-              tags={image.tags}
-              largeImageURL={image.largeImageURL}
+              key={id}
+              webformatURL={webformatURL}
+              tags={tags}
+              largeImageURL={largeImageURL}
               onClickModal={onClickModal}
             />
           ))}
         </ul>
-</div>
+</>
   );
 }
-}
+
 
 ImageGallery.propTypes = {
-  images: PropTypes.array.isRequired,
+  images: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number.isRequired,
+      webformatURL: PropTypes.string.isRequired,
+      tags: PropTypes.string.isRequired,
+      largeImageURL: PropTypes.string.isRequired,
+    })
+  ).isRequired,
+  onClickModal: PropTypes.func.isRequired,
 };
-

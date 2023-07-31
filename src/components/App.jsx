@@ -1,4 +1,4 @@
-import React from 'react'
+import {useState, useEffect} from 'react'
 import SearchBar from './Searchbar/Searchbar'
 import ImageGallery from './ImageGallery/ImageGallery'
 import * as ImageServes from 'service/image-service'
@@ -7,58 +7,65 @@ import Button from './Button/Button'
 import Modal from './Modal/Modal'
 import css from './App.module.css';
 
-export default class App extends React.Component {
-  state = {
-    word: '',
-    images: [],
-    page: 1,
-    isButtonLoadVisible: false,
-    isLoading: false,
-    isModalShow: false,
-    dataForModal: {},
-  }
-  formSubmitHandler = (searchTerm) => {
-this.setState({ word: searchTerm , images: [], page: 1});
+export default function App () {
+
+const [word, setWord] = useState('');
+const [images, setImages] = useState([]);
+const [page, setPage] = useState(1);
+const [isButtonLoadVisible, setIsButtonLoadVisible] = useState(false);
+const [isLoading, setIsLoading] = useState(false);
+const [isModalShow, setIsModalShow] = useState(false);
+const [dataForModal, setDataForModal] = useState({});
+const [formSubmitted, setFormSubmitted] = useState(false);
+
+ const formSubmitHandler = (searchTerm) => {
+  setWord(searchTerm);
+  setImages([]);
+  setPage(1);
+  setFormSubmitted(true);
   }
 
-async componentDidUpdate(prevProps, prevState){
-  const {word, page} = this.state;
-  if((prevState.word !== word && word!=='')|| prevState.page !==page){
-    try {
-      this.setState({isLoading: true})
-  const {data:{hits, totalHits}} = await ImageServes.getImages(word, page);
-  this.setState(prevState => ({images: [...prevState.images, ...hits], isButtonLoadVisible: page<Math.ceil(totalHits/12)}))
-    } catch (error) {
+  useEffect(() => {
+    async function api() {
+      if(formSubmitted){
+      try {
+        setIsLoading(true);
+        const { data: { hits, totalHits } } = await ImageServes.getImages(word, page);
+        setImages(state => [...state, ...hits]);
+        setIsButtonLoadVisible(page < Math.ceil(totalHits / 12));
+      } catch (error) {
 
-    }finally{
-this.setState({isLoading: false})
+      } finally {
+        setIsLoading(false);
+      }
     }
-
   }
+    api();
+  }, [formSubmitted, word, page]);
+
+const onButtonLoadMoreClick=()=>{
+  setPage(state => state + 1 );
 }
 
-onButtonLoadMoreClick=()=>{
-this.setState(prevState=>({page: prevState.page + 1 }))
+const handlerOnClickModal = (event, image) =>{
+  setIsModalShow(true);
+  setDataForModal({src: image.largeImageURL, alt: image.alt});
 }
 
-handlerOnClickModal = (event, image) =>{
-this.setState({isModalShow: true, dataForModal: {src: image.largeImageURL, alt: image.alt}})
+const closeModalW = () =>{
+  setIsModalShow(false);
 }
 
-closeModalW = () =>{
-  this.setState({isModalShow: false})
-}
-  render(){
-    const { images, isButtonLoadVisible, isLoading, isModalShow, dataForModal} = this.state;
    return (
     <div className={css.App}>
-   <SearchBar onSubmit={this.formSubmitHandler}/>
+   <SearchBar onSubmit={formSubmitHandler}/>
     {isLoading && <Loader/>}
-   {images.length !==0 && <ImageGallery images={images} onClickModal={this.handlerOnClickModal}/>}
-    {isButtonLoadVisible && !isLoading && <Button onClickButton={this.onButtonLoadMoreClick}/>}
-    {isModalShow && <Modal data={dataForModal} onClose={this.closeModalW}/>}
+   {images.length !==0 && <ImageGallery images={images} onClickModal={handlerOnClickModal}/>}
+    {isButtonLoadVisible && !isLoading && <Button onClickButton={onButtonLoadMoreClick}/>}
+    {isModalShow && <Modal data={dataForModal} onClose={closeModalW}/>}
     </div>
    )
 };
-}
+
+
 

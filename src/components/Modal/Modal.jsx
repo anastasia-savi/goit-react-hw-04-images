@@ -1,37 +1,35 @@
 import { createPortal } from 'react-dom'
 import css from './Modal.module.css'
-import React from 'react'
+import {useEffect} from 'react'
 import { GoXCircle } from "react-icons/go";
 import PropTypes from 'prop-types';
 
-export default class Modal extends React.Component{
-  modalRoot = document.querySelector('#modal-root');
-  componentDidMount(){
-    window.addEventListener('keydown',this.handleKeyDown)
-  }
+export default function Modal ({onClose, data}){
+  const modalRoot = document.querySelector('#modal-root');
 
-  componentWillUnmount(){
-    window.removeEventListener('keydown',this.handleKeyDown)
-  }
-
-  handleKeyDown = event => {
+  const handleKeyDown = event => {
     if(event.code === 'Escape'){
-      this.props.onClose();
+      onClose();
     }
   }
+  window.addEventListener('keydown', handleKeyDown);
+useEffect(()=>{
+  return ()=>{
+    window.removeEventListener('keydown',handleKeyDown)
+  }
+}, [])
 
-  handlwBackdropClick = event => {
+ const  handlwBackdropClick = event => {
 if(event.currentTarget === event.target){
-  this.props.onClose();
+  onClose();
 }
   }
+const { src, alt } = data;
 
-render(){
-  const { src, alt } = this.props.data;
   return createPortal(
-  <div className={css.overlay} onClick={this.handlwBackdropClick}>
+  <div className={css.overlay} onClick={handlwBackdropClick}>
 <div className={css.modal}>
-<button className={css.button} onClick={this.props.onClose}>
+<button className={css.button} onClick={onClose}>
     <GoXCircle/>
     </button>
 <img
@@ -40,16 +38,14 @@ render(){
       className={css.largeImage}
     />
     </div>
-</div>, this.modalRoot
+</div>, modalRoot
   )
 }
-}
+
 
 Modal.propTypes = {
-  data: PropTypes.objectOf(
-    PropTypes.shape({
+  data: PropTypes.shape({
       src: PropTypes.string.isRequired,
       alt: PropTypes.string.isRequired,
-    })
-  ).isRequired,
+    }).isRequired,
 };

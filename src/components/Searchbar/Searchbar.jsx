@@ -1,37 +1,35 @@
-import React from 'react'
+import {useState} from 'react'
 import css from './Searchbar.module.css'
 import { LuSearch } from "react-icons/lu";
 
-export default class SearchBar extends React.Component{
-state ={
-  inputValue: '',
+export default function SearchBar ({onSubmit}){
+
+const [inputValue, setInputValue] = useState('');
+
+const handlerOnChange = (event) => {
+  setInputValue(event.currentTarget.value.toLowerCase())
 }
 
-handlerOnChange = (event) => {
-this.setState({inputValue: event.currentTarget.value.toLowerCase()})
-}
-
-handlerOnSubmit = (event) => {
+const handlerOnSubmit = (event) => {
 event.preventDefault();
-if(this.state.inputValue.trim()===''){
+if(inputValue.trim()===''){
   alert('Enter something');
   return;
 }
-this.props.onSubmit(this.state.inputValue);
-this.setState({inputValue: ''});
+onSubmit(inputValue);
+setInputValue('');
 }
 
-  render(){
     return(
       <header className={css.searchbar}>
-        <form className={css.searchForm} onSubmit={this.handlerOnSubmit}>
+        <form className={css.searchForm} onSubmit={handlerOnSubmit}>
           <button type="submit" className={css.searchFormButton}>
           <LuSearch/>
           </button>
 
     <input
-    onChange={this.handlerOnChange}
-    value={this.state.inputValue}
+    onChange={handlerOnChange}
+    value={inputValue}
       className={css.searchFormInput}
       type="text"
       autoComplete="off"
@@ -42,4 +40,3 @@ this.setState({inputValue: ''});
 </header>
     )
   }
-}
