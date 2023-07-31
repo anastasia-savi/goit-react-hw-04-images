@@ -8,7 +8,6 @@ import Modal from './Modal/Modal'
 import css from './App.module.css';
 
 export default function App () {
-
 const [word, setWord] = useState('');
 const [images, setImages] = useState([]);
 const [page, setPage] = useState(1);
