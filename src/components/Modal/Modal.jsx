@@ -1,30 +1,30 @@
 import { createPortal } from 'react-dom'
 import css from './Modal.module.css'
-import {useEffect} from 'react'
+import {useEffect, useCallback} from 'react'
 import { GoXCircle } from "react-icons/go";
 import PropTypes from 'prop-types';
 
 export default function Modal ({onClose, data}){
   const modalRoot = document.querySelector('#modal-root');
 
-  const handleKeyDown = event => {
+  const handleKeyDown = useCallback((event) => {
     if(event.code === 'Escape'){
       onClose();
     }
-  }
+  }, [onClose]);
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
 
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, []);
+  }, [handleKeyDown]);
 
- const  handlwBackdropClick = event => {
+ const  handlwBackdropClick = (event) => {
 if(event.currentTarget === event.target){
   onClose();
 }
-  }
+ }
 const { src, alt } = data;
 
   return createPortal(
